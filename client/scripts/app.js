@@ -173,7 +173,7 @@ $(document).ready(function(){
   });
 
   $(document).on("click", ".room", function(){
-    console.log($(this).data())
+    console.log($(this).data());
     $("#chats").html("");
     $(".roomTitle").text($(this).data().name);
     app.currentRoom = $(this).data().name;
@@ -194,7 +194,7 @@ $(document).ready(function(){
   $("#addRoom .submitRoom").click(function(){
     event.preventDefault();
     var roomName = $("#roomName").val()
-    console.log(roomName)
+    console.log(roomName);
     app.addRoom(0, roomName);
     app.rooms++
     app.currentRoom = roomName;
@@ -203,7 +203,7 @@ $(document).ready(function(){
   })
   app.pullRooms()
   setInterval(function() {app.pullRooms()}, 1000)
-  // app.fetch()
+  app.fetch()
   setInterval(function(){
     app.fetch()
   }, 1000)
