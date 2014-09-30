@@ -9,6 +9,7 @@ var fs = require('fs');
 var http = require('http');
 var path = require('path');
 var clientPath = '../client';
+var chatLog = './chatlog.txt';
 var controller  = require('./controller');
 var results = [];
 results.push({text: 'yolotrollo', username: 'sharkbait', createdAt: new Date(), roomname: 'lobby'});
