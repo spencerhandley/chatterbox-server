@@ -10,7 +10,7 @@ exports.get = function(request, response, parsedUrl, headers, results){
 exports.post = function(request, response, parsedUrl, headers, results){
   var statusCode = 201;
   request.on('data', function(chunk){
-    results.push(JSON.parse(chunk.toString()));
+    results.unshift(JSON.parse(chunk.toString()));
     response.writeHead(statusCode, headers);
     response.end();
   });

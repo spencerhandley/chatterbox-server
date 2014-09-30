@@ -8,9 +8,9 @@ var url = require('url');
 var http = require('http');
 var controller  = require('./controller');
 var results = [];
-results.push({text: 'yolotrollo', username: 'sharkbait', createdAt: new Date()});
-results.push({text: '#burningman', username: 'kobra', createdAt: new Date()});
-results.push({text: 'date night with my hubby, tacobell! ;) #blessed', username: 'magee', createdAt: new Date()});
+results.push({text: 'yolotrollo', username: 'sharkbait', createdAt: new Date(), roomname: "lobby"});
+results.push({text: '#burningman', username: 'kobra', createdAt: new Date(), roomname: "lobby"});
+results.push({text: 'date night with my hubby, tacobell! ;) #blessed', username: 'magee', createdAt: new Date(), roomname: "lobby"});
 var routes = {
   classes: {
     'GET': controller.get,

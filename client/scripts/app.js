@@ -18,10 +18,8 @@ $(document).ready(function(){
         data: JSON.stringify(message),
         contentType: "application/jsonp",
         success: function (data) {
-          console.log(data)
           var filteredText = message.text.replace(/[^\w\s]/gi, '');
           var filteredUN = message.username.replace(/[^\w\s]/gi, '');
-
           $("#chats").prepend("<p class='chat'>" + moment(data.createdAt).format("D/M/YYYY, h:mma") + " " + filteredUN + ": " + filteredText +"</p>")
           console.log('chatterbox: Message sent');
         },
@@ -44,25 +42,22 @@ $(document).ready(function(){
         // data: JSON.stringify(message),
         contentType: 'application/jsonp',
         success: function (data) {
-          console.log(JSON.parse(data));
           var parsedData = JSON.parse(data);
           if($("#chats").children().length < 1){
             for(var i =0; i<parsedData.results.length; i++ ){
-              var filteredText = parsedData.results[i].text.replace(/[^\w\s]/gi, '');
-              var filteredUN = parsedData.results[i].username.replace(/[^\w\s]/gi, '');
               var message = {
-                 text : filteredText,
-                 username: filteredUN,
+                 text : parsedData.results[i].text,
+                 username: parsedData.results[i].username,
                  createdAt: parsedData.results[i].createdAt
               };
-              var highlightClass = _.contains(app.currentUser.friends, filteredUN) ? "highlighted" : "hey";
+              var highlightClass = _.contains(app.currentUser.friends, parsedData.results[i].username) ? "highlighted" : "hey";
               app.addMessage(message,highlightClass);
               if(moment(parsedData.results[i].createdAt).format("hhmmss") > moment(new Date()).format("hhmmss") - 1){
                 app.addMessage(message,highlightClass);
               }
             }
           }
-          console.log('chatterbox: Message sent');
+          console.log('chatterbox: Messages fetched');
         },
         error: function (data) {
           // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -85,17 +80,16 @@ $(document).ready(function(){
         // data: JSON.stringify(message),
         contentType: 'application/jsonp',
         success: function (data) {
-          for(var i =0; i<data.results.length; i++ ){
-            var filteredText = data.results[i].text.replace(/[^\w\s]/gi, '')
-            var filteredUN = data.results[i].username.replace(/[^\w\s]/gi, '')
-            var highlightClass = _.contains(app.currentUser.friends,filteredUN) ? "highlighted" : "";
+          var parsedData = JSON.parse(data);
+          for(var i =0; i<parsedData.results.length; i++ ){
+            var highlightClass = _.contains(app.currentUser.friends, parsedData.results[i].username) ? "highlighted" : "";
             var message = {
-              text : filteredText,
-              username: filteredUN,
-              createdAt: data.results[i].createdAt
+              text : parsedData.results[i].text,
+              username: parsedData.results[i].username,
+              createdAt: parsedData.results[i].createdAt
             };
             app.addMessage(message,highlightClass);
-            if(moment(data.results[i].createdAt).format("hhmmss") > moment(new Date()).format("hhmmss") - 1){
+            if(moment(parsedData.results[i].createdAt).format("hhmmss") > moment(new Date()).format("hhmmss") - 1){
               app.addMessage(message,highlightClass);
             }
           }
@@ -111,17 +105,26 @@ $(document).ready(function(){
       $("#chats").children().remove();
     },
     addMessage : function(msg, highclass){
-      $("#chats").append("<p class='chat "+ highclass +"' data-username='"+msg.username+"'>" + moment(msg.createdAt).format("D/M/YYYY, h:mma") + " " +msg.username + ": " +msg.text +"</p>");
+      var $newchat = $('<p>').addClass('chat').addClass(highclass);
+      $newchat.data('username', msg.username);
+      var formattedTime = moment(msg.createdAt).format("D/M/YYYY, h:mma");
+      var msgText = formattedTime + " " +msg.username + ": " +msg.text;
+      $newchat.text(msgText);
+      $("#chats").append($newchat);
     },
     addRoom: function(index, room){
       $("#rooms").append("<p>" + (index+1) + ": <a class='room "+room+"' href='#' data-name='"+ room +"''>" +room +" </a><p>")
     },
     addFriend: function(user){
-      var filteredUN = user.replace(/[^\w\s]/gi, '');
-      app.currentUser.friends.push(filteredUN);
+      app.currentUser.friends.push(user);
     },
     handleSubmit: function(){
-      var msg = {text: $("#send #message").val(), username: getQueryVariable("username"), roomname: app.currentRoom }
+      var msg = {
+        text: $("#send #message").val(),
+        username: getQueryVariable("username"),
+        roomname: app.currentRoom,
+        createdAt: new Date()
+      };
       app.send(msg);
       $("#send #message").val("");
     },
@@ -136,9 +139,10 @@ $(document).ready(function(){
         // },
         contentType: 'application/jsonp',
         success: function (data) {
-          for(var i = 0; i < data.results.length; i++){
-            if(data.results[i].roomname){
-              var filteredRoom = data.results[i].roomname.replace(/[^\w\s]/gi, '')
+          var parsedData = JSON.parse(data);
+          for(var i = 0; i < parsedData.results.length; i++){
+            if(parsedData.results[i].roomname){
+              var filteredRoom = parsedData.results[i].roomname.replace(/[^\w\s]/gi, '')
             }
 
             if(app.rooms.indexOf(filteredRoom) === -1){
@@ -150,7 +154,7 @@ $(document).ready(function(){
             app.addRoom(i, app.rooms[i]);
           }
         },
-        error: function (data) {
+        error: function (parsedData) {
           console.error('chatterbox: Failed to send message');
         }
       });
@@ -198,7 +202,7 @@ $(document).ready(function(){
     $(".roomTitle").text(roomName);
   })
   app.pullRooms()
-  // setInterval(function() {app.pullRooms()}, 10000)
+  setInterval(function() {app.pullRooms()}, 1000)
   // app.fetch()
   setInterval(function(){
     app.fetch()
