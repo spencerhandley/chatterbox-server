@@ -21,18 +21,27 @@ var routes = {
 
 exports.handleRequest = function(request, response) {
   var parsedUrl = url.parse(request.url).pathname.split('/');
-  var controllerMethod = routes[parsedUrl[1]][request.method];
-
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
-
   var statusCode;
-  var headers = defaultCorsHeaders;
 
-  if (controllerMethod === undefined){
+  var return404 = function(){
     statusCode = 404;
     response.writeHead(statusCode, headers);
     response.end();
     return;
+  };
+
+  if (routes[parsedUrl[1]] === undefined){
+    return return404();
+  }
+
+  var controllerMethod = routes[parsedUrl[1]][request.method];
+
+  console.log('Serving request type ' + request.method + ' for url ' + request.url);
+
+  var headers = defaultCorsHeaders;
+
+  if (controllerMethod === undefined){
+    return return404();
   }
 
   controllerMethod(request, response, parsedUrl, headers, results);
