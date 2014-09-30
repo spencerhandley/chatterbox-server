@@ -11,7 +11,7 @@ $(document).ready(function(){
     },
     init : function(){},
     send: function(message){
-      console.log(JSON.stringify(message))
+      console.log(JSON.stringify(message));
       $.ajax({
         type: 'POST',
         url: 'http://127.0.0.1:3000/classes/chatterbox',
@@ -19,8 +19,8 @@ $(document).ready(function(){
         contentType: "application/jsonp",
         success: function (data) {
           console.log(data)
-          var filteredText = message.text.replace(/[^\w\s]/gi, '')
-          var filteredUN = message.username.replace(/[^\w\s]/gi, '')
+          var filteredText = message.text.replace(/[^\w\s]/gi, '');
+          var filteredUN = message.username.replace(/[^\w\s]/gi, '');
 
           $("#chats").prepend("<p class='chat'>" + moment(data.createdAt).format("D/M/YYYY, h:mma") + " " + filteredUN + ": " + filteredText +"</p>")
           console.log('chatterbox: Message sent');
@@ -44,19 +44,21 @@ $(document).ready(function(){
         // data: JSON.stringify(message),
         contentType: 'application/jsonp',
         success: function (data) {
+          console.log(JSON.parse(data));
+          var parsedData = JSON.parse(data);
           if($("#chats").children().length < 1){
-            for(var i =0; i<data.results.length; i++ ){
-              var filteredText = data.results[i].text.replace(/[^\w\s]/gi, '')
-              var filteredUN = data.results[i].username.replace(/[^\w\s]/gi, '')
+            for(var i =0; i<parsedData.results.length; i++ ){
+              var filteredText = parsedData.results[i].text.replace(/[^\w\s]/gi, '');
+              var filteredUN = parsedData.results[i].username.replace(/[^\w\s]/gi, '');
               var message = {
                  text : filteredText,
                  username: filteredUN,
-                 createdAt: data.results[i].createdAt
-              }
+                 createdAt: parsedData.results[i].createdAt
+              };
               var highlightClass = _.contains(app.currentUser.friends, filteredUN) ? "highlighted" : "hey";
-              app.addMessage(message,highlightClass)
-              if(moment(data.results[i].createdAt).format("hhmmss") > moment(new Date()).format("hhmmss") - 1){
-                app.addMessage(message,highlightClass)
+              app.addMessage(message,highlightClass);
+              if(moment(parsedData.results[i].createdAt).format("hhmmss") > moment(new Date()).format("hhmmss") - 1){
+                app.addMessage(message,highlightClass);
               }
             }
           }
@@ -109,7 +111,7 @@ $(document).ready(function(){
       $("#chats").children().remove();
     },
     addMessage : function(msg, highclass){
-      $("#chats").append("<p class='chat "+ highclass +"' data-username='"+msg.username+"'>" + moment(msg.createdAt).format("D/M/YYYY, h:mma") + " " +msg.username + ": " +msg.text +"</p>")
+      $("#chats").append("<p class='chat "+ highclass +"' data-username='"+msg.username+"'>" + moment(msg.createdAt).format("D/M/YYYY, h:mma") + " " +msg.username + ": " +msg.text +"</p>");
     },
     addRoom: function(index, room){
       $("#rooms").append("<p>" + (index+1) + ": <a class='room "+room+"' href='#' data-name='"+ room +"''>" +room +" </a><p>")
@@ -164,7 +166,7 @@ $(document).ready(function(){
     app.addFriend($(this).data().username)
     $("#chats").html("");
     app.fetchRoom(app.currentRoom)
-  })
+  });
 
   $(document).on("click", ".room", function(){
     console.log($(this).data())
